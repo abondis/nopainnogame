@@ -18,6 +18,14 @@ int sensorValue2 = 0;
 int sensorValue3 = 0;      
 int sensorValue4 = 0;     
 
+//Globals for movement
+//response: string sent when one batch of movement is done
+String gResponse = "";
+// total time moving toward the goal (up)
+int gTotalTime = 0;
+// offset from x position
+int gOffset = 0;
+
 int turnMultiplier = 1300; //ms par 90degré de rotation
 float speedModificator = 13; //77.5mm par sec
 int leftspeed = 255;  //255 is maximum speed  
@@ -33,7 +41,7 @@ void setup(void)
   
   pinMode(eyePin, OUTPUT); 
   Serial.begin(9600);
-  Serial.println("Start;");
+  Serial.println("Start:");
 }
 
 void loop(void) 
@@ -42,7 +50,27 @@ void loop(void)
   char command = Serial.read();
   int magnitude = readInt();
   Serial.println(magnitude);
+  move(command);
   
+  //Envoyer un réponse
+  //TODO: passer en fonction et generer gResponse
+  Serial.print(command);
+  Serial.print(",");
+  if(command == 'f' || command == 'b'){
+    Serial.print(int( timeCount / speedModificator ));
+  } else {
+    Serial.print(magnitude);
+  }
+  Serial.print(",");
+  Serial.print(collision);
+  Serial.print(":");
+  Serial.println(";");
+  
+
+}
+
+// Orientation: 0: going up, 1:going left, -1:going right
+void move(char command,int magnitude, int orientation) {
   boolean finish = 0;
   int collision = 0;
   int timeCount = 0;
@@ -72,9 +100,11 @@ void loop(void)
     break; 
   }
   //finish = sense() & command == 'f' ;
-  
-  while (finish == 0) { // loop each 50ms
+  while (!finish) { // loop each 50ms
     
+    if( orientation == 0) {
+      gTotalTime = gTotalTime + 50;
+    }
     timeCount = timeCount + 50;
     delay(50);
     
@@ -82,33 +112,63 @@ void loop(void)
       finish = 1;
     }
     
-    if(sense() && command == 'f') {
-      collision = 1;
-      finish = 1;
+    if(command == 'f') {
+      if( orientation ==0 && sense()) {
+        //we are moving left
+        stop();
+        move('l', 1, 1);
+        move('f', 200, 1);
+        collision += 1;
+        //finish = 1;
+      }
+      if( orientation == 1) {
+        gaOffset += 50;
+      }
+      if( orientation == -1) {
+        gOffset -= 50;
+      }
+      if(collision == 2) { finish = 1;}
+    }
+  }
+  stop();
+  //TODO: retablir offset
+  if(command == 'f') {
+    // going west
+    if( orientation == 1) {
+      //turn right; move or go back left
+      move('r', 1, 0);
+      if ( sense() ) {
+        move('l', 1, 1);
+        move('f',200,1);
+      } else {
+        move('f', 400, 0);
+      }
+    } 
+    //going north with offset 
+    if( orientation == 0 && gOffset) {
+      //turn right; move or go back left
+      move('r', 1, 0);
+      if ( sense() ) {
+        move('l', 1, 0);
+        move('f',200,0);
+      } else {
+        move('f', gOffset, -1);
+      }
+    } 
+    // we are back on track
+    if ( orientation == -1 && !gOffset) {
+      move('l', 1, 0);
     }
   }
   collision = sense();
-  stop();
-  
-  //Envoyer un réponse
-  Serial.print(command);
-  Serial.print(",");
-  if(command == 'f' || command == 'b'){
-    Serial.print(int( timeCount / speedModificator ));
-  } else {
-    Serial.print(magnitude);
-  }
-  Serial.print(",");
-  Serial.print(collision);
-  Serial.println(";");
-  
+  return collision;
 }
 
 int readInt(){
   Serial.read(); // protocol f,100; (forward,magnit
   int tmp = Serial.read() - '0';
   int i = 0;
-  while(tmp != ';' - '0') {
+  while(tmp != ':' - '0') {
     i = i*10 + tmp;
     while(Serial.available() < 1);
     tmp = Serial.read() - '0';
@@ -168,3 +228,8 @@ boolean sense(void) // Sense objects
   }
 }
 
+// go around an object
+void workaround(void) {
+  
+
+}
