@@ -1,118 +1,156 @@
+
 /*To control the rover, Copy and paste the code below into the Arduino software*/ 
 // Test
 int E1 = 6; //M1 Speed Control 
 int E2 = 5; //M2 Speed Control 
 int M1 = 8; //M1 Direction Control 
 int M2 = 7; //M2 Direction Control 
-int ENEyePin; // EN pin for the eyes
-const int analogInPin1 = A0;  // Analog input pin that the potentiometer is attached to
-const int analogInPin2 = A1;  // Analog input pin that the potentiometer is attached to
-const int analogInPin3 = A2;  // Analog input pin that the potentiometer is attached to
-const int analogInPin4 = A3;  // Analog input pin that the potentiometer is attached to
-const int analogOutPin = 9; // Analog output pin that the LED is attached to
 
-int sensorValue1 = 0;        // value read from the pot
-int sensorValue2 = 0;        // value read from the pot
-int sensorValue3 = 0;        // value read from the pot
-int sensorValue4 = 0;        // value read from the pot
+//Pins and vars for the eye
+int eyePin; // EN pin for the eyes
+const int analogInPin1 = A0;  // Analog input pin 
+const int analogInPin2 = A1;  // Analog input pin 
+const int analogInPin3 = A2;  // Analog input pin 
+const int analogInPin4 = A3;  // Analog input pin 
 
+int sensorValue1 = 0;        
+int sensorValue2 = 0;       
+int sensorValue3 = 0;      
+int sensorValue4 = 0;     
+
+int turnMultiplier = 1300; //ms par 90degré de rotation
+float speedModificator = 13; //77.5mm par sec
+int leftspeed = 255;  //255 is maximum speed  
+int rightspeed = 255; 
 
 void setup(void) 
 { 
   int i; 
-  for(i=5;i<=8;i++) 
-  pinMode(i, OUTPUT); 
-  Serial.begin(9600);
-  pinMode(ENEyePin, OUTPUT);      // sets the digital pin as output
-  digitalWrite(ENEyePin, HIGH);
-
-} 
-void loop(void) 
-{ 
-//  Serial.print("Ready to rock\n");  
+  for(i=5;i<=8;i++) { 
+    pinMode(i, OUTPUT);
+  }
   
-  while (Serial.available() < 1) {} // Wait until a character is received 
-  char val = Serial.read(); 
-  int leftspeed = 255;  //255 is maximum speed  
-  int rightspeed = 255; 
-  switch(val) // Perform an action depending on the command 
-  { 
+  
+  pinMode(eyePin, OUTPUT); 
+  Serial.begin(9600);
+  Serial.println("Start;");
+}
+
+void loop(void) 
+{  
+  while (Serial.available() < 4 ); // Wait until a character is received 
+  char command = Serial.read();
+  int magnitude = readInt();
+  Serial.println(magnitude);
+  
+  boolean finish = 0;
+  int collision = 0;
+  int timeCount = 0;
+  int timeLimit = 0;
+  Serial.println("test");
+  
+  switch(command) // Perform an action depending on the command 
+  {
   case 'f'://Move Forward 
-    forward (leftspeed,rightspeed); 
+    forward();
+    timeLimit = magnitude * speedModificator;
     break; 
   case 'b'://Move Backwards 
-    reverse (leftspeed,rightspeed); 
+    reverse();
+    timeLimit = magnitude * speedModificator;
     break; 
   case 'l'://Turn Left 
-    left (leftspeed,rightspeed); 
+    left();
+    timeLimit = magnitude * turnMultiplier;
     break; 
   case 'r'://Turn Right 
-    right (leftspeed,rightspeed); 
+    right(); 
+    timeLimit = magnitude * turnMultiplier;
     break; 
   default: 
     stop(); 
     break; 
   }
-  int i = 0;
-  boolean collision = sense() & val == 'f'
-  ;
-  while (i <20 & !collision){
-    delay(100);
-    collision = sense( )& val == 'f';
-    if(collision ) {
-      break;
+  //finish = sense() & command == 'f' ;
+  
+  while (finish == 0) { // loop each 50ms
+    
+    timeCount = timeCount + 50;
+    delay(50);
+    
+    if(timeLimit !=0 && timeLimit < timeCount){
+      finish = 1;
     }
-    i++;
+    
+    if(sense() && command == 'f') {
+      collision = 1;
+      finish = 1;
+    }
   }
   collision = sense();
-  Serial.print(val);
+  stop();
+  
+  //Envoyer un réponse
+  Serial.print(command);
   Serial.print(",");
-  Serial.print(i*100);
+  if(command == 'f' || command == 'b'){
+    Serial.print(int( timeCount / speedModificator ));
+  } else {
+    Serial.print(magnitude);
+  }
   Serial.print(",");
   Serial.print(collision);
-  Serial.print(";");
-  stop();
+  Serial.println(";");
+  
 }
 
+int readInt(){
+  Serial.read(); // protocol f,100; (forward,magnit
+  int tmp = Serial.read() - '0';
+  int i = 0;
+  while(tmp != ';' - '0') {
+    i = i*10 + tmp;
+    while(Serial.available() < 1);
+    tmp = Serial.read() - '0';
+  }
+ // Serial.println(i, DEC);
+  return i;
+}
 
 void stop(void) //Stop 
 { 
   digitalWrite(E1,LOW); 
   digitalWrite(E2,LOW); 
-//  Serial.print("Stop");
 } 
-void forward(char a,char b) 
+void forward() 
 { 
-  analogWrite (E1,a); 
+  analogWrite (E1,leftspeed); 
   digitalWrite(M1,LOW); 
-  analogWrite (E2,b); 
+  analogWrite (E2,rightspeed); 
   digitalWrite(M2,LOW); 
-//  Serial.print("J'avance");
 } 
-void reverse (char a,char b) 
+void reverse () 
 { 
-  analogWrite (E1,a); 
+  analogWrite (E1,leftspeed); 
   digitalWrite(M1,HIGH); 
-  analogWrite (E2,b); 
+  analogWrite (E2,rightspeed); 
   digitalWrite(M2,HIGH); 
-//  Serial.print("Je recule");
 } 
-void left (char a,char b) 
+void left () 
 { 
-  analogWrite (E1,a); 
+  analogWrite (E1,leftspeed); 
   digitalWrite(M1,HIGH); 
-  analogWrite (E2,b); 
+  analogWrite (E2,rightspeed); 
   digitalWrite(M2,LOW); 
 } 
-void right (char a,char b) 
+void right () 
 { 
-  analogWrite (E1,a); 
+  analogWrite (E1,leftspeed); 
   digitalWrite(M1,LOW); 
-  analogWrite (E2,b); 
+  analogWrite (E2,rightspeed); 
   digitalWrite(M2,HIGH); 
 }
 
-int outputValue = 0;        // value output to the PWM (analog out)
 
 boolean sense(void) // Sense objects
 { 
