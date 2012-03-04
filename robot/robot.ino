@@ -54,24 +54,24 @@ void loop(void)
     break; 
   }
   int i = 0;
-  int collision = sense();
-  while (i <20 && ! collision){
+  boolean collision = sense() & val == 'f'
+  ;
+  while (i <20 & !collision){
     delay(100);
-    collision = sense();
-    if(collision) {
-      stop();
-      Serial.print(val);
-      Serial.print(",");
-      Serial.print(i*100);
-      Serial.print(",");
-      Serial.print(collision);
-      Serial.print(";");
+    collision = sense( )& val == 'f';
+    if(collision ) {
       break;
     }
     i++;
   }
+  collision = sense();
+  Serial.print(val);
+  Serial.print(",");
+  Serial.print(i*100);
+  Serial.print(",");
+  Serial.print(collision);
+  Serial.print(";");
   stop();
-
 }
 
 
@@ -114,7 +114,7 @@ void right (char a,char b)
 
 int outputValue = 0;        // value output to the PWM (analog out)
 
-int sense(void) // Sense objects
+boolean sense(void) // Sense objects
 { 
   
   // read the analog in value:
@@ -124,8 +124,6 @@ int sense(void) // Sense objects
   sensorValue4 = analogRead(analogInPin4);            
   // collision
   if( (sensorValue1 + sensorValue2 + sensorValue3 + sensorValue4) / 4 > 600) {
-    stop();
-    // TODO: send serialized report
     return 1;
   } else {
     return 0;
