@@ -23,14 +23,13 @@ void setup(void)
   for(i=5;i<=8;i++) 
   pinMode(i, OUTPUT); 
   Serial.begin(9600);
-  Serial.print("Hello\r ");
   pinMode(ENEyePin, OUTPUT);      // sets the digital pin as output
   digitalWrite(ENEyePin, HIGH);
 
 } 
 void loop(void) 
 { 
-  Serial.print("Ready to rock\n");  
+//  Serial.print("Ready to rock\n");  
   
   while (Serial.available() < 1) {} // Wait until a character is received 
   char val = Serial.read(); 
@@ -38,16 +37,16 @@ void loop(void)
   int rightspeed = 255; 
   switch(val) // Perform an action depending on the command 
   { 
-  case 'w'://Move Forward 
+  case 'f'://Move Forward 
     forward (leftspeed,rightspeed); 
     break; 
-  case 's'://Move Backwards 
+  case 'b'://Move Backwards 
     reverse (leftspeed,rightspeed); 
     break; 
-  case 'a'://Turn Left 
+  case 'l'://Turn Left 
     left (leftspeed,rightspeed); 
     break; 
-  case 'd'://Turn Right 
+  case 'r'://Turn Right 
     right (leftspeed,rightspeed); 
     break; 
   default: 
@@ -58,9 +57,15 @@ void loop(void)
   int collision = sense();
   while (i <20 && ! collision){
     delay(100);
-    collision = sense()
+    collision = sense();
     if(collision) {
       stop();
+      Serial.print(val);
+      Serial.print(",");
+      Serial.print(i*100);
+      Serial.print(",");
+      Serial.print(collision);
+      Serial.print(";");
       break;
     }
     i++;
@@ -74,7 +79,7 @@ void stop(void) //Stop
 { 
   digitalWrite(E1,LOW); 
   digitalWrite(E2,LOW); 
-  Serial.print("Stop");
+//  Serial.print("Stop");
 } 
 void forward(char a,char b) 
 { 
@@ -82,7 +87,7 @@ void forward(char a,char b)
   digitalWrite(M1,LOW); 
   analogWrite (E2,b); 
   digitalWrite(M2,LOW); 
-  Serial.print("J'avance");
+//  Serial.print("J'avance");
 } 
 void reverse (char a,char b) 
 { 
@@ -90,7 +95,7 @@ void reverse (char a,char b)
   digitalWrite(M1,HIGH); 
   analogWrite (E2,b); 
   digitalWrite(M2,HIGH); 
-  Serial.print("Je recule");
+//  Serial.print("Je recule");
 } 
 void left (char a,char b) 
 { 
