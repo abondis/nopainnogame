@@ -1,5 +1,7 @@
 import httplib
 import json
+import copy
+import time
 
 class MyRobots:
 
@@ -9,18 +11,26 @@ class MyRobots:
     self.key=key
     self.url=url
 
-  def write(self, newdict):
+  def write(self, newdict, noReadFirst=False):
     self.conn = httplib.HTTPConnection(self.url)
-    current=self.read()
     val=""
-    for key in newdict.keys():
-      current[key] = newdict[key]
+    if noReadFirst:
+      current=newdict
+    else:
+      current=self.read()
+      for key in newdict.keys():
+        current[key] = newdict[key]
     for key in current.keys():
       val+= "&" + key + "=" + str(current[key])
+    val+="&status=true"
     self.conn.request("GET", "/update?key="+self.key+val)
+    while self.conn.getresponse().read() == '0':
+      time.sleep(2)
+      self.conn.request("GET", "/update?key="+self.key+val)
 
   def read(self):
     self.conn = httplib.HTTPConnection(self.url)
     self.conn.request("GET","/channels/589/feed/last.json")
-    return json.loads(self.conn.getresponse().read())
+    data = json.loads(self.conn.getresponse().read())
+    return data
 
