@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename source module &apos;everything.php&apos; to &apos;lib.php&apos;&#x0A;- Original element: &apos;(default package)\everything.php&apos;&#x0A;- Renamed element: &apos;(default package)\lib.php&apos;" description="Rename source module &apos;everything.php&apos;" flags="589830" id="org.eclipse.dltk.ui.rename.sourcemodule" input="/&lt;{everything.php" name="lib.php" stamp="1330824255317" version="1.0"/>
+</session>
