@@ -1,0 +1,45 @@
+!SESSION 2012-03-03 20:22:35.142 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.6.0_22
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86, WS=gtk, NL=en_CA
+Framework arguments:  -showlocation -showlocation
+Command-line arguments:  -os linux -ws gtk -arch x86 -showlocation -data /var/www -showlocation
+
+!ENTRY org.eclipse.ui 4 4 2012-03-03 20:22:42.856
+!MESSAGE Unable to find Action Set: org.eclipse.wst.server.ui.internal.webbrowser.actionSet
+
+!ENTRY org.eclipse.ui.workbench 2 0 2012-03-03 20:22:46.991
+!MESSAGE A handler conflict occurred.  This may disable some commands.
+!SUBENTRY 1 org.eclipse.ui.workbench 2 0 2012-03-03 20:22:46.991
+!MESSAGE Conflict for 'org.eclipse.dltk.ui.edit.text.script.refactor.quickMenu':
+HandlerActivation(commandId=org.eclipse.dltk.ui.edit.text.script.refactor.quickMenu,
+	handler=org.eclipse.dltk.internal.ui.actions.refactoring.RefactorActionGroup$3@14bcae9,
+	expression=AndExpression(ActivePartExpression(org.eclipse.php.internal.ui.explorer.PHPExplorerPart@1961a84),WorkbenchWindowExpression(org.eclipse.ui.internal.WorkbenchWindow@1594a88)),sourcePriority=1064960)
+HandlerActivation(commandId=org.eclipse.dltk.ui.edit.text.script.refactor.quickMenu,
+	handler=org.eclipse.dltk.internal.ui.actions.refactoring.RefactorActionGroup$3@f690e4,
+	expression=AndExpression(ActivePartExpression(org.eclipse.php.internal.ui.explorer.PHPExplorerPart@1961a84),WorkbenchWindowExpression(org.eclipse.ui.internal.WorkbenchWindow@1594a88)),sourcePriority=1064960)
+
+!ENTRY org.eclipse.ui 4 4 2012-03-03 20:22:47.878
+!MESSAGE Bad extension specification
+
+!ENTRY org.zend.php.zendserver.deployment.ui 4 0 2012-03-03 20:22:47.902
+!MESSAGE startup class must implement org.eclipse.ui.IStartup
+
+!ENTRY org.zend.php.zendserver.deployment.ui 4 0 2012-03-03 20:22:48.298
+!MESSAGE Address already in use
+!STACK 0
+java.net.BindException: Address already in use
+	at java.net.PlainSocketImpl.socketBind(Native Method)
+	at java.net.PlainSocketImpl.bind(PlainSocketImpl.java:365)
+	at java.net.ServerSocket.bind(ServerSocket.java:319)
+	at java.net.ServerSocket.<init>(ServerSocket.java:185)
+	at java.net.ServerSocket.<init>(ServerSocket.java:97)
+	at org.zend.php.zendserver.deployment.ui.chrome.SocketCommandListener$1.run(SocketCommandListener.java:39)
+	at java.lang.Thread.run(Thread.java:662)
+
+!ENTRY org.eclipse.ui 4 4 2012-03-03 20:23:54.980
+!MESSAGE Invalid preference page path: HTML Syntax
+
+!ENTRY org.eclipse.ui 4 4 2012-03-03 20:23:54.981
+!MESSAGE Invalid preference page path: XML Syntax
