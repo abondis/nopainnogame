@@ -1,0 +1,31 @@
+Are you tired of having to remember to clean your room before you play ?
+
+# (people in a dirty room looking desparate)
+
+Or perhaps, you know or live with someone who can't stop leaving his things on the floor and you don't want to have to manually repeat the same thing over and over again ?
+
+# (Des gens qui se chicanent)
+
+Then, this new product is for you!
+
+# (robot moving with a cool music)
+
+The NPNG-1337 is the companion that you need to help you keep track of a dirty room!
+
+
+This autonomous device, once you leave it running on the floor, will first take care of mapping a room's environment with it's infrared sensors, 
+# (videos of the robot going around objects with a full contournement)
+
+then, it will send this data to the cloud thanks to the new and exciting "MyRobots.com" web service.
+# (film the screen of a laptop on the myrobots website)
+
+Once the information is in the cloud, the NPNG-1337 will keep moving around, detecting new objects.
+# (video of the robot stopping in front of trash)
+
+The information will be sent to the cloud NPNG application, and will be available from any webbrowser.
+
+From there, the possibilities are endless: 
+  * you could run a fat client application on your computer to prevent you from playing video games if your room is not tidy,
+  * you could configure the application to send an SMS or call you on your cellphone to remind you of the cleaning work that needs to be done.
+  * A lot of exciting features have yet to be implemented, but since the code is free and open source, fully available on GitHub, who knows where it could go with help from the community!
+

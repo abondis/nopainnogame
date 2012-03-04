@@ -3,9 +3,12 @@ import time
 
 class Robot:
   """ 
-  Data from robot: f|l|r|b,millimeters_or_deg,0|1
-  Data to robot: f|l|r|b,millimeters_or_deg;
-   deg is actually a value from 0 to 3 for 90,180,270,360
+  Data from robot: dest,dist,collision[:dest,dist,collision[:...]];
+  Data to robot: dest,dist,contournement[:dest,dist,contournement[:...]];
+   deg is actually a value from 0 to 3 for 90,180,270,360.
+   collision is 1 if there is an object in front at that moment, 0 otherwise.
+   contournement is 0,l or r, for the robot to go around an object.
+   the closing ";" is not used outside this class.
   """
 
   client_socket=None
@@ -22,12 +25,14 @@ class Robot:
       time.sleep(.05)
       return None
     # We got data, let's read until we get a ";" 
-    while data[-1] != ";":
+    counter = 0
+    while data[-1] != ";" and counter < 10:
       newdata = self.read()
       if newdata: data += newdata
-    return data
+      counter += 1
+    return data[0:-1]
 
   def write(self, value):
+      value += ";"
       self.client_socket.send(value)
-    
 
