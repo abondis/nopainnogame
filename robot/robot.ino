@@ -17,7 +17,6 @@ int sensorValue1 = 0;
 int sensorValue2 = 0;       
 int sensorValue3 = 0;      
 int sensorValue4 = 0;     
-
 //Globals for movement
 //response: string sent when one batch of movement is done
 String gResponse = "";
@@ -25,6 +24,8 @@ String gResponse = "";
 int gTotalTime = 0;
 // offset from x position
 int gOffset = 0;
+// total des collisions sans offset et direction nord
+int gCollision = 0;
 
 int turnMultiplier = 1300; //ms par 90degré de rotation
 float speedModificator = 13; //77.5mm par sec
@@ -38,7 +39,6 @@ void setup(void)
     pinMode(i, OUTPUT);
   }
   
-  
   pinMode(eyePin, OUTPUT); 
   Serial.begin(9600);
   Serial.println("Start:");
@@ -50,32 +50,43 @@ void loop(void)
   char command = Serial.read();
   int magnitude = readInt();
   Serial.println(magnitude);
-  move(command);
+  gCollision = 0;
+  gOffset = 0;
+  gTotalTime = 0;
+  gResponse = "";
+  move(command, magnitude, 0);
   
   //Envoyer un réponse
   //TODO: passer en fonction et generer gResponse
+  /*
   Serial.print(command);
   Serial.print(",");
   if(command == 'f' || command == 'b'){
-    Serial.print(int( timeCount / speedModificator ));
+    Serial.print(int( gTotalTime / speedModificator ));
   } else {
     Serial.print(magnitude);
   }
   Serial.print(",");
-  Serial.print(collision);
+  Serial.print(gCollision);
   Serial.print(":");
   Serial.println(";");
-  
+  */
 
 }
 
 // Orientation: 0: going up, 1:going left, -1:going right
-void move(char command,int magnitude, int orientation) {
+int move(char command,int magnitude, int orientation) {
   boolean finish = 0;
-  int collision = 0;
   int timeCount = 0;
   int timeLimit = 0;
-  Serial.println("test");
+  int continueTrack = 0;
+  Serial.print("move(");
+  Serial.print(command);
+  Serial.print(",");
+  Serial.print(magnitude);
+  Serial.print(",");
+  Serial.print(orientation);
+  Serial.println(");");
   
   switch(command) // Perform an action depending on the command 
   {
@@ -102,7 +113,7 @@ void move(char command,int magnitude, int orientation) {
   //finish = sense() & command == 'f' ;
   while (!finish) { // loop each 50ms
     
-    if( orientation == 0) {
+    if( orientation == 0 && command == 'f') {
       gTotalTime = gTotalTime + 50;
     }
     timeCount = timeCount + 50;
@@ -116,18 +127,33 @@ void move(char command,int magnitude, int orientation) {
       if( orientation ==0 && sense()) {
         //we are moving left
         stop();
-        move('l', 1, 1);
-        move('f', 200, 1);
-        collision += 1;
+        
+        if(gOffset <= 49) {
+          gCollision += 1;
+        }
+        if(gCollision == 2) { 
+          finish = 1;
+        } else {
+          move('l', 1, 1);
+          move('f', 200, 1);
+          
+          if(magnitude==0){
+            continueTrack = 0;
+          } else {
+            continueTrack = max((timeLimit - gTotalTime)/speedModificator ,1);
+          }
+          
+          move('f', continueTrack, 0);
+          finish = 1;
+        }
         //finish = 1;
       }
       if( orientation == 1) {
-        gaOffset += 50;
+        gOffset += 50;
       }
       if( orientation == -1) {
         gOffset -= 50;
       }
-      if(collision == 2) { finish = 1;}
     }
   }
   stop();
@@ -152,7 +178,7 @@ void move(char command,int magnitude, int orientation) {
         move('l', 1, 0);
         move('f',200,0);
       } else {
-        move('f', gOffset, -1);
+        move('f', gOffset/speedModificator, -1);
       }
     } 
     // we are back on track
@@ -160,8 +186,7 @@ void move(char command,int magnitude, int orientation) {
       move('l', 1, 0);
     }
   }
-  collision = sense();
-  return collision;
+  return sense();
 }
 
 int readInt(){
@@ -226,10 +251,4 @@ boolean sense(void) // Sense objects
   } else {
     return 0;
   }
-}
-
-// go around an object
-void workaround(void) {
-  
-
 }
